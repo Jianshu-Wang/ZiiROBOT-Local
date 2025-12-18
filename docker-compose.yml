@@ -1,0 +1,46 @@
+services:
+  kws:
+    build:
+      context: ./KWS
+      dockerfile: Dockerfile
+    container_name: ziirobot-kws
+    volumes:
+      - /dev/snd:/dev/snd
+      - ./KWS/TCResNet8_best_model:/app/TCResNet8_best_model
+      - ./KWS/labels.txt:/app/labels.txt
+    devices:
+      - /dev/snd:/dev/snd
+    privileged: false
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TF_CPP_MIN_LOG_LEVEL=2
+      - TF_ENABLE_ONEDNN_OPTS=0
+    stdin_open: true
+    tty: true
+    
+  web:
+    build:
+      context: ./Web
+      dockerfile: Dockerfile
+    container_name: ziirobot-web
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /etc/NetworkManager:/etc/NetworkManager
+      - ./Web/config:/app/config
+      - /run/dbus/system_bus_socket:/run/dbus/system_bus_socket
+      - /run/NetworkManager:/run/NetworkManager
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+    privileged: true
+    depends_on:
+      - kws
+  
+  networks:
+    default:
+      name: ziirobot-network
+
+
