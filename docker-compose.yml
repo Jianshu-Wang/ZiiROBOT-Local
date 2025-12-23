@@ -36,11 +36,8 @@ services:
       - FLASK_ENV=production
       - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
     privileged: true
+    
     depends_on:
       - kws
-  
-  networks:
-    default:
-      name: ziirobot-network
 
 
